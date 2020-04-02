@@ -1,4 +1,5 @@
 import configparser
+import json
 import pathlib
 import re
 import sys
@@ -33,9 +34,10 @@ def main():
         data["notes"] = " ".join(sys.argv[2:])
 
     try:
-        urlopen(url, urlencode(data).encode("utf-8"))
-    except HTTPError:
-        sys.stderr.write("FAILURE\n")
+        result = urlopen(url, urlencode(data).encode("utf-8")).read()
+    except HTTPError as exc:
+        sys.stderr.write("FAILURE: {}\n".format(exc))
         sys.exit(1)
     else:
-        sys.stdout.write("SUCCESS\n")
+        data = json.loads(result.decode("utf-8"))
+        sys.stdout.write("SUCCESS: {}\n".format(data["success"]))
