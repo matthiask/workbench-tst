@@ -46,3 +46,7 @@ def main():
     else:
         data = json.loads(result.decode("utf-8"))
         sys.stdout.write("SUCCESS: {}\n".format(data["success"]))
+
+
+if __name__ == "__main__":
+    main()
