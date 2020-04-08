@@ -1,4 +1,5 @@
 import configparser
+import datetime as dt
 import json
 import pathlib
 import re
@@ -21,14 +22,18 @@ def main():
 
     if len(sys.argv) < 2 or sys.argv[1] not in {"start", "stop", "split"}:
         sys.stderr.write(
-            "Usage: %s {start|stop|split} [12:34] [notes...]\n" % sys.argv[0]
+            "Usage: %s {start|stop|split} [12:34|+5|-6] [notes...]\n" % sys.argv[0]
         )
         sys.exit(1)
 
     data = {"type": sys.argv[1], "user": user}
 
-    if len(sys.argv) > 2 and re.match(r"[0-9]{1,2}:[0-9]{2}", sys.argv[2]):
+    if len(sys.argv) > 2 and re.match(r"^[0-9]{1,2}:[0-9]{2}$", sys.argv[2]):
         data["time"] = sys.argv[2]
+        data["notes"] = " ".join(sys.argv[3:])
+    elif len(sys.argv) > 2 and re.match(r"^[-+][0-9]+$", sys.argv[2]):
+        time = dt.datetime.now() + dt.timedelta(minutes=int(sys.argv[2]))
+        data["time"] = time.replace(microsecond=0).time().isoformat()
         data["notes"] = " ".join(sys.argv[3:])
     else:
         data["notes"] = " ".join(sys.argv[2:])
