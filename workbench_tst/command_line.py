@@ -19,7 +19,7 @@ def main():
     user = config.get("workbench", "user")
     url = config.get("workbench", "url")
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or sys.argv[1] not in {"start", "stop", "split"}:
         sys.stderr.write(
             "Usage: %s {start|stop|split} [12:34] [notes...]\n" % sys.argv[0]
         )
