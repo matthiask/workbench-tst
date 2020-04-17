@@ -10,6 +10,16 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
+def fetch_json(url, data=None):
+    try:
+        result = urlopen(url, urlencode(data or ()).encode("utf-8")).read()
+    except HTTPError as exc:
+        sys.stderr.write("FAILURE: {}\n".format(exc))
+        sys.exit(1)
+    else:
+        return json.loads(result.decode("utf-8"))
+
+
 def main():
     config = configparser.ConfigParser()
     try:
@@ -39,14 +49,8 @@ def main():
         data["time"] = time.replace(microsecond=0).time().isoformat()
     data["notes"] = " ".join(args)
 
-    try:
-        result = urlopen(url, urlencode(data).encode("utf-8")).read()
-    except HTTPError as exc:
-        sys.stderr.write("FAILURE: {}\n".format(exc))
-        sys.exit(1)
-    else:
-        data = json.loads(result.decode("utf-8"))
-        sys.stdout.write("SUCCESS: {}\n".format(data["success"]))
+    data = fetch_json(url, data)
+    sys.stdout.write("SUCCESS: {}\n".format(data["success"]))
 
 
 if __name__ == "__main__":
