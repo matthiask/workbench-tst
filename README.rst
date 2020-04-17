@@ -32,3 +32,5 @@ Usage
    tst stop Yay I finished work
    # OR
    tst start 09:00 Oops I forgot to press start at the right time
+   # OR ('split' is the default)
+   tst Just some notes
