@@ -12,7 +12,7 @@ from urllib.request import urlopen
 
 def fetch_json(url, data=None):
     try:
-        result = urlopen(url, urlencode(data or ()).encode("utf-8")).read()
+        result = urlopen(url, data).read()
     except HTTPError as exc:
         sys.stderr.write("FAILURE: {}\n".format(exc))
         sys.exit(1)
@@ -33,9 +33,44 @@ def main():
 
     if len(sys.argv) < 2:
         sys.stderr.write(
-            "Usage: %s [{start|stop|split}] [12:34|+5|-6] [notes...]\n" % sys.argv[0]
+            """\
+Workbench timestamps command-line interface
+
+Splitting right now:
+
+    tst split              # Bare split
+    tst one two three      # Including notes
+
+Splitting some other time:
+
+    tst -5                 # 5 Minutes ago
+    tst 13:30              # At 13:30 exactly
+    tst -10 one two three  # Splitting 10 minutes ago with notes
+    tst +15                # Split in 15 minutes
+
+Submitting other types:
+
+    tst stop
+    tst start
+    tst start -5           # I started 5 minutes ago
+
+Show today's timestamps:
+
+    tst list
+"""
         )
         sys.exit(1)
+
+    if sys.argv[1] == "list":
+        url = url.replace("create-timestamp", "list-timestamps")
+        sys.stdout.write(
+            "\n".join(
+                row["timestamp"]
+                for row in fetch_json(url + "?user={}".format(user), None)["timestamps"]
+            )
+        )
+        sys.stdout.write("\n")
+        return
 
     args = deque(sys.argv[1:])
     data = {
@@ -49,7 +84,7 @@ def main():
         data["time"] = time.replace(microsecond=0).time().isoformat()
     data["notes"] = " ".join(args)
 
-    data = fetch_json(url, data)
+    data = fetch_json(url, urlencode(data).encode("utf-8"))
     sys.stdout.write("SUCCESS: {}\n".format(data["success"]))
 
 
