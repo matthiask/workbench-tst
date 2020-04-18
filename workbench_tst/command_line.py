@@ -14,17 +14,27 @@ def fetch_json(url, data=None):
     try:
         result = urlopen(url, data).read()
     except HTTPError as exc:
-        sys.stderr.write("FAILURE: {}\n".format(exc))
+        sys.stderr.write(red("FAILURE: {}\n".format(exc)))
         sys.exit(1)
     else:
         return json.loads(result.decode("utf-8"))
 
 
+def underline(s):
+    return "\033[4m{}\033[0m".format(s)
+
+
+def red(s):
+    return "\033[31m{}\033[0m".format(s)
+
+
+def green(s):
+    return "\033[32m{}\033[0m".format(s)
+
+
 def format_timestamp_row(row):
-    return (
-        "{timestamp} \033[4m{comment}\033[0m".format(**row)
-        if row["comment"]
-        else row["timestamp"]
+    return "{} {}".format(
+        row["timestamp"], underline(row["comment"]) if row["comment"] else "",
     )
 
 
@@ -33,7 +43,7 @@ def main():
     try:
         config.read_string(pathlib.Path("~/.workbench").expanduser().read_text())
     except FileNotFoundError:
-        sys.stderr.write("Config file ~/.workbench is missing\n")
+        sys.stderr.write(red("Config file ~/.workbench is missing\n"))
         sys.exit(1)
 
     user = config.get("workbench", "user")
@@ -76,13 +86,12 @@ Show help:
 
     if sys.argv[1] == "list":
         url = url.replace("create-timestamp", "list-timestamps")
+        data = fetch_json(url + "?user={}".format(user), None)
+        sys.stdout.write(green("Timestamps\n"))
         sys.stdout.write(
-            "\n".join(
-                format_timestamp_row(row)
-                for row in fetch_json(url + "?user={}".format(user), None)["timestamps"]
-            )
+            "\n".join(format_timestamp_row(row) for row in data["timestamps"])
         )
-        sys.stdout.write("\n")
+        sys.stdout.write("\n{}\n".format(green("Logged: {}h".format(data["hours"]))))
         return
 
     args = deque(sys.argv[1:])
@@ -98,7 +107,7 @@ Show help:
     data["notes"] = " ".join(args)
 
     data = fetch_json(url, urlencode(data).encode("utf-8"))
-    sys.stdout.write("SUCCESS: {}\n".format(data["success"]))
+    sys.stdout.write(green("SUCCESS: {}\n".format(data["success"])))
 
 
 if __name__ == "__main__":
