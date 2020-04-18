@@ -20,6 +20,14 @@ def fetch_json(url, data=None):
         return json.loads(result.decode("utf-8"))
 
 
+def format_timestamp_row(row):
+    return (
+        "{timestamp} \033[4m{comment}\033[0m".format(**row)
+        if row["comment"]
+        else row["timestamp"]
+    )
+
+
 def main():
     config = configparser.ConfigParser()
     try:
@@ -70,7 +78,7 @@ Show help:
         url = url.replace("create-timestamp", "list-timestamps")
         sys.stdout.write(
             "\n".join(
-                row["timestamp"]
+                format_timestamp_row(row)
                 for row in fetch_json(url + "?user={}".format(user), None)["timestamps"]
             )
         )
