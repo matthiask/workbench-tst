@@ -31,7 +31,7 @@ def main():
     user = config.get("workbench", "user")
     url = config.get("workbench", "url")
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or sys.argv[1] == "help":
         sys.stderr.write(
             """\
 Workbench timestamps command-line interface
@@ -57,6 +57,11 @@ Submitting other types:
 Show today's timestamps:
 
     tst list
+
+Show help:
+
+    tst
+    tst help
 """
         )
         sys.exit(1)
