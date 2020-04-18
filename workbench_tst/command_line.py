@@ -29,26 +29,9 @@ red = ansi("31")
 green = ansi("32")
 
 
-def format_timestamp_row(row):
-    return "{} {}".format(
-        row["timestamp"], underline(row["comment"]) if row["comment"] else "",
-    )
-
-
-def main():
-    config = configparser.ConfigParser()
-    try:
-        config.read_string(pathlib.Path("~/.workbench").expanduser().read_text())
-    except FileNotFoundError:
-        sys.stderr.write(red("Config file ~/.workbench is missing\n"))
-        sys.exit(1)
-
-    user = config.get("workbench", "user")
-    url = config.get("workbench", "url")
-
-    if len(sys.argv) < 2 or sys.argv[1] == "help":
-        sys.stderr.write(
-            """\
+def show_help():
+    sys.stderr.write(
+        """\
 Workbench timestamps command-line interface
 
 Splitting right now:
@@ -77,20 +60,28 @@ Show help:
 
     tst
     tst help
+
 """
-        )
-        sys.exit(1)
+    )
+    sys.exit(1)
 
-    if sys.argv[1] == "list":
-        url = url.replace("create-timestamp", "list-timestamps")
-        data = fetch_json(url + "?user={}".format(user), None)
-        sys.stdout.write(green("Timestamps\n"))
-        sys.stdout.write(
-            "\n".join(format_timestamp_row(row) for row in data["timestamps"])
-        )
-        sys.stdout.write("\n{}\n".format(green("Logged: {}h".format(data["hours"]))))
-        return
 
+def list_timestamps(*, url, user):
+    url = url.replace("create-timestamp", "list-timestamps")
+    data = fetch_json(url + "?user={}".format(user), None)
+    sys.stdout.write(green("Timestamps\n"))
+    sys.stdout.write(
+        "\n".join(
+            "{} {}".format(
+                row["timestamp"], underline(row["comment"]) if row["comment"] else "",
+            )
+            for row in data["timestamps"]
+        )
+    )
+    sys.stdout.write("\n{}\n".format(green("Logged: {}h".format(data["hours"]))))
+
+
+def create_timestamp(*, url, user):
     args = deque(sys.argv[1:])
     data = {
         "type": args.popleft() if args[0] in {"start", "stop", "split"} else "split",
@@ -104,7 +95,27 @@ Show help:
     data["notes"] = " ".join(args)
 
     data = fetch_json(url, urlencode(data).encode("utf-8"))
-    sys.stdout.write(green("SUCCESS: {}\n".format(data["success"])))
+    sys.stdout.write(green(data["success"]))
+    sys.stdout.write("\n")
+
+
+def main():
+    config = configparser.ConfigParser()
+    try:
+        config.read_string(pathlib.Path("~/.workbench").expanduser().read_text())
+    except FileNotFoundError:
+        sys.stderr.write(red("Config file ~/.workbench is missing\n"))
+        sys.exit(1)
+
+    user = config.get("workbench", "user")
+    url = config.get("workbench", "url")
+
+    if len(sys.argv) < 2 or sys.argv[1] == "help":
+        show_help()
+    elif sys.argv[1] == "list":
+        list_timestamps(url=url, user=user)
+    else:
+        create_timestamp(url=url, user=user)
 
 
 if __name__ == "__main__":
