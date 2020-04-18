@@ -20,16 +20,13 @@ def fetch_json(url, data=None):
         return json.loads(result.decode("utf-8"))
 
 
-def underline(s):
-    return "\033[4m{}\033[0m".format(s)
+def ansi(code):
+    return lambda s: "\033[{}m{}\033[0m".format(code, s)
 
 
-def red(s):
-    return "\033[31m{}\033[0m".format(s)
-
-
-def green(s):
-    return "\033[32m{}\033[0m".format(s)
+underline = ansi("4")
+red = ansi("31")
+green = ansi("32")
 
 
 def format_timestamp_row(row):
