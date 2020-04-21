@@ -23,14 +23,29 @@ Controller link)::
 Usage
 =====
 
-::
+Splitting right now::
 
-   tst split
-   # OR
-   tst split 12:34
-   # OR
-   tst stop Yay I finished work
-   # OR
-   tst start 09:00 Oops I forgot to press start at the right time
-   # OR ('split' is the default)
-   tst Just some notes
+    tst split              # Bare split
+    tst one two three      # Including notes
+
+Splitting some other time::
+
+    tst -5                 # 5 Minutes ago
+    tst 13:30              # At 13:30 exactly
+    tst -10 one two three  # Splitting 10 minutes ago with notes
+    tst +15                # Split in 15 minutes
+
+Submitting other types::
+
+    tst stop
+    tst start
+    tst start -5           # I started 5 minutes ago
+
+Show today's timestamps::
+
+    tst list
+
+Show help::
+
+    tst
+    tst help
