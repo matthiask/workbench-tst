@@ -87,13 +87,19 @@ def create_timestamp(*, url, user, projects):
         "type": args.popleft() if args[0] in {"start", "stop", "split"} else "split",
         "user": user,
     }
-    if args and re.match(r"^[0-9]{1,2}:[0-9]{2}$", args[0]):
-        data["time"] = args.popleft()
-    elif args and re.match(r"^[-+][0-9]+$", args[0]):
-        time = dt.datetime.now() + dt.timedelta(minutes=int(args.popleft()))
-        data["time"] = time.replace(microsecond=0).time().isoformat()
-    if args and args[0] in projects:
-        data["project"] = projects[args.popleft()]
+    while True:
+        if not args:
+            break
+        if re.match(r"^[0-9]{1,2}:[0-9]{2}$", args[0]):
+            data["time"] = args.popleft()
+        elif re.match(r"^[-+][0-9]+$", args[0]):
+            time = dt.datetime.now() + dt.timedelta(minutes=int(args.popleft()))
+            data["time"] = time.replace(microsecond=0).time().isoformat()
+        elif args[0] in projects:
+            data["project"] = projects[args.popleft()]
+        else:
+            break
+
     data["notes"] = " ".join(args)
 
     data = fetch_json(url, urlencode(data).encode("utf-8"))
