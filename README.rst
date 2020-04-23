@@ -49,3 +49,19 @@ Show help::
 
     tst
     tst help
+
+
+Setting the project early
+=========================
+
+By adding an additional section to the ``.workbench`` config file you
+may specify the project when creating the timestamp already. Add a
+section mapping a short key to the project's primary key as follows::
+
+  [projects]
+  admin = 42
+  game = 70
+
+Now, the first word of the notes can be used to set the project::
+
+  tst admin Mails
