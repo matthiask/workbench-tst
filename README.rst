@@ -9,7 +9,7 @@ Installation
 2. Install fh-fablib
 
    a. ``pipx install workbench-tst`` if you're happy with the packaged version
-   b. ``pipx install --editable git+ssh://git@github.com/matthiask/workbench-tst.git@main#egg=workbench-tst`` otherwise
+   b. ``pipx install --editable git+ssh://git@github.com/matthiask/workbench-tst.git#egg=workbench-tst`` otherwise
 
 3. Create a file named ``.workbench`` in your home folder. It should
    contain the following settings (you can find the correct values for you
