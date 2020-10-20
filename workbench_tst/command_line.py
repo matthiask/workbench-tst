@@ -73,7 +73,8 @@ def list_timestamps(*, url, user):
     sys.stdout.write(
         "\n".join(
             "{} {}".format(
-                row["timestamp"], underline(row["comment"]) if row["comment"] else "",
+                row["timestamp"],
+                underline(row["comment"]) if row["comment"] else "",
             )
             for row in data["timestamps"]
         )
