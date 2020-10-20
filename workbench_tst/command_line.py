@@ -34,23 +34,23 @@ def show_help():
         """\
 Workbench timestamps command-line interface
 
-Splitting right now:
+Stopping a task right now:
 
-    tst split              # Bare split
-    tst one two three      # Including notes
+    tst stop                    # Bare stop
+    tst stop one two three      # Including notes
 
-Splitting some other time:
+Stopping some other time:
 
-    tst -5                 # 5 Minutes ago
-    tst 13:30              # At 13:30 exactly
-    tst -10 one two three  # Splitting 10 minutes ago with notes
-    tst +15                # Split in 15 minutes
+    tst stop -5                 # 5 Minutes ago
+    tst stop 13:30              # At 13:30 exactly
+    tst stop -10 one two three  # Splitting 10 minutes ago with notes
+    tst stop +15                # Split in 15 minutes
 
-Submitting other types:
+Submitting starts:
 
-    tst stop
     tst start
-    tst start -5           # I started 5 minutes ago
+    tst start -5                # I started 5 minutes ago
+    tst start -5 one two three  # I started 5 minutes ago with notes
 
 Show today's timestamps:
 
@@ -85,7 +85,7 @@ def list_timestamps(*, url, user):
 def create_timestamp(*, url, user, projects):
     args = deque(sys.argv[1:])
     data = {
-        "type": args.popleft() if args[0] in {"start", "stop", "split"} else "split",
+        "type": args.popleft(),
         "user": user,
     }
     while True:
@@ -128,8 +128,10 @@ def main():
         show_help()
     elif sys.argv[1] == "list":
         list_timestamps(url=url, user=user)
-    else:
+    elif sys.argv[1] in {"start", "stop"}:
         create_timestamp(url=url, user=user, projects=projects)
+    else:
+        show_help()
 
 
 if __name__ == "__main__":
