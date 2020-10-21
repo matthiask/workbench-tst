@@ -82,7 +82,7 @@ def list_timestamps(*, url, user):
     sys.stdout.write("\n{}\n".format(green("Logged: {}h".format(data["hours"]))))
 
 
-def create_timestamp(*, url, user, projects):
+def create_timestamp(*, url, user):
     args = deque(sys.argv[1:])
     data = {
         "type": args.popleft(),
@@ -96,8 +96,6 @@ def create_timestamp(*, url, user, projects):
         elif re.match(r"^[-+][0-9]+$", args[0]):
             time = dt.datetime.now() + dt.timedelta(minutes=int(args.popleft()))
             data["time"] = time.replace(microsecond=0).time().isoformat()
-        elif args[0] in projects:
-            data["project"] = projects[args.popleft()]
         else:
             break
 
@@ -119,17 +117,12 @@ def main():
     user = config.get("workbench", "user")
     url = config.get("workbench", "url")
 
-    try:
-        projects = dict(config.items("projects"))
-    except configparser.NoSectionError:
-        projects = {}
-
     if len(sys.argv) < 2 or sys.argv[1] == "help":
         show_help()
     elif sys.argv[1] == "list":
         list_timestamps(url=url, user=user)
     elif sys.argv[1] in {"start", "stop"}:
-        create_timestamp(url=url, user=user, projects=projects)
+        create_timestamp(url=url, user=user)
     else:
         show_help()
 
