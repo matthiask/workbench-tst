@@ -30,9 +30,12 @@ green = ansi("32")
 
 
 def show_help():
+    time = dt.datetime.now().replace(microsecond=0).time().isoformat()
+
     sys.stderr.write(
         """\
 Workbench timestamps command-line interface
+Current time: {time}
 
 Stopping a task right now:
 
@@ -61,7 +64,7 @@ Show help:
     tst
     tst help
 
-"""
+""".format(time=time)
     )
     sys.exit(1)
 
