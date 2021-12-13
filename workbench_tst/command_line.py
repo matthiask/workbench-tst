@@ -30,12 +30,9 @@ green = ansi("32")
 
 
 def show_help():
-    time = dt.datetime.now().replace(microsecond=0).time().isoformat()
-
     sys.stderr.write(
         """\
 Workbench timestamps command-line interface
-Current time: {time}
 
 Stopping a task right now:
 
@@ -64,7 +61,21 @@ Show help:
     tst
     tst help
 
-""".format(time=time)
+"""
+    )
+    sys.exit(1)
+
+
+def show_unknown_command_message(command):
+    time = dt.datetime.now().time().isoformat("minutes")
+
+    sys.stderr.write(
+        """\
+'{command}' is an unknown command. See 'tst help'.
+Current time: {time}
+""".format(
+            time=time, command=command
+        )
     )
     sys.exit(1)
 
@@ -126,6 +137,8 @@ def main():
         list_timestamps(url=url, user=user)
     elif sys.argv[1] in {"start", "stop"}:
         create_timestamp(url=url, user=user)
+    elif sys.argv[1]:
+        show_unknown_command_message(sys.argv[1])
     else:
         show_help()
 
