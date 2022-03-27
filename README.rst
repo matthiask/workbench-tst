@@ -12,13 +12,10 @@ Installation
    b. ``pipx install --editable git+ssh://git@github.com/matthiask/workbench-tst.git#egg=workbench-tst`` otherwise
 
 3. Create a file named ``.workbench`` in your home folder. It should
-   contain the following settings (you can find the correct values for you
-   by navigating to the Timestamps page and inspecting the
-   Controller link)::
+   contain the controller URL in the following format::
 
        [workbench]
-       url = https://workbench.feinheit.ch/create-timestamp/
-       user = email@example.org:HASH
+       controller = https://workbench.feinheit.ch/timestamps-controller/?token=...
 
 
 Usage

@@ -6,7 +6,7 @@ import re
 import sys
 from collections import deque
 from urllib.error import HTTPError
-from urllib.parse import urlencode
+from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import urlopen
 
 
@@ -66,9 +66,9 @@ Show help:
     sys.exit(1)
 
 
-def list_timestamps(*, url, user):
-    url = url.replace("create-timestamp", "list-timestamps")
-    data = fetch_json(url + "?user={}".format(user), None)
+def list_timestamps(*, base, token):
+    url = f"{base}/list-timestamps/"
+    data = fetch_json(url + "?token={}".format(token), None)
     sys.stdout.write(green("Timestamps\n"))
     sys.stdout.write(
         "\n".join(
@@ -82,11 +82,12 @@ def list_timestamps(*, url, user):
     sys.stdout.write("\n{}\n".format(green("Logged: {}h".format(data["hours"]))))
 
 
-def create_timestamp(*, url, user):
+def create_timestamp(*, base, token):
+    url = f"{base}/create-timestamp/"
     args = deque(sys.argv[1:])
     data = {
         "type": args.popleft(),
-        "user": user,
+        "token": token,
     }
     while True:
         if not args:
@@ -114,15 +115,17 @@ def main():
         sys.stderr.write(red("Config file ~/.workbench is missing\n"))
         sys.exit(1)
 
-    user = config.get("workbench", "user")
-    url = config.get("workbench", "url")
+    controller = config.get("workbench", "controller")
+    u = urlparse(controller)
+    base = f"{u.scheme}://{u.netloc}"
+    token = parse_qs(u.query)["token"][0]
 
     if len(sys.argv) < 2 or sys.argv[1] == "help":
         show_help()
     elif sys.argv[1] == "list":
-        list_timestamps(url=url, user=user)
+        list_timestamps(base=base, token=token)
     elif sys.argv[1] in {"start", "stop"}:
-        create_timestamp(url=url, user=user)
+        create_timestamp(base=base, token=token)
     else:
         show_help()
 
