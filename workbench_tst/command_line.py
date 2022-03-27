@@ -6,7 +6,7 @@ import re
 import sys
 from collections import deque
 from urllib.error import HTTPError
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import urlencode, urlparse
 from urllib.request import urlopen
 
 
@@ -66,9 +66,8 @@ Show help:
     sys.exit(1)
 
 
-def list_timestamps(*, base, token):
-    url = f"{base}/list-timestamps/"
-    data = fetch_json(url + "?token={}".format(token), None)
+def list_timestamps(url):
+    data = fetch_json(url, None)
     sys.stdout.write(green("Timestamps\n"))
     sys.stdout.write(
         "\n".join(
@@ -82,12 +81,10 @@ def list_timestamps(*, base, token):
     sys.stdout.write("\n{}\n".format(green("Logged: {}h".format(data["hours"]))))
 
 
-def create_timestamp(*, base, token):
-    url = f"{base}/create-timestamp/"
+def create_timestamp(url):
     args = deque(sys.argv[1:])
     data = {
         "type": args.popleft(),
-        "token": token,
     }
     while True:
         if not args:
@@ -117,15 +114,12 @@ def main():
 
     controller = config.get("workbench", "controller")
     u = urlparse(controller)
-    base = f"{u.scheme}://{u.netloc}"
-    token = parse_qs(u.query)["token"][0]
-
     if len(sys.argv) < 2 or sys.argv[1] == "help":
         show_help()
     elif sys.argv[1] == "list":
-        list_timestamps(base=base, token=token)
+        list_timestamps(u._replace(path="/list-timestamps/").geturl())
     elif sys.argv[1] in {"start", "stop"}:
-        create_timestamp(base=base, token=token)
+        create_timestamp(u._replace(path="/create-timestamp/").geturl())
     else:
         show_help()
 
