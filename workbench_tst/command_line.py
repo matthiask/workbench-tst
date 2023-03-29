@@ -14,6 +14,8 @@ def fetch_json(url, data=None):
     try:
         result = urlopen(url, data).read()
     except HTTPError as exc:
+        time = dt.datetime.now()
+        sys.stdout.write(red(time.replace(microsecond=0).time().isoformat()))
         sys.stderr.write(red("FAILURE: {}\n".format(exc)))
         sys.exit(1)
     else:
