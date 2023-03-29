@@ -5,7 +5,6 @@ import pathlib
 import re
 import sys
 from collections import deque
-from urllib.error import HTTPError
 from urllib.parse import urlencode, urlparse
 from urllib.request import urlopen
 
@@ -13,8 +12,9 @@ from urllib.request import urlopen
 def fetch_json(url, data=None):
     try:
         result = urlopen(url, data).read()
-    except HTTPError as exc:
-        sys.stderr.write(red("FAILURE: {}\n".format(exc)))
+    except Exception as exc:
+        time = dt.datetime.now().replace(microsecond=0).time().isoformat()
+        sys.stderr.write(red("FAILURE at {}: {}\n".format(time, exc)))
         sys.exit(1)
     else:
         return json.loads(result.decode("utf-8"))
